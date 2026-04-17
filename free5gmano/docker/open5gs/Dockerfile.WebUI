@@ -1,0 +1,25 @@
+FROM node:20.18.2
+
+ARG OPEN5GS_VERSION=2.7.2
+
+COPY open5gs_webui-entrypoint.sh /
+
+RUN chmod +x /open5gs_webui-entrypoint.sh && \
+    apt-get update && \
+    apt-get install -y ca-certificates curl gnupg wget && \
+    wget https://downloads.mongodb.com/compass/mongosh-2.3.9-linux-x64.tgz && \
+    tar -zxf mongosh-2.3.9-linux-x64.tgz && \
+    rm mongosh-2.3.9-linux-x64.tgz && \
+    chmod +x mongosh-2.3.9-linux-x64/bin/mongosh && \
+    cp mongosh-2.3.9-linux-x64/bin/mongosh /usr/local/bin/ && \
+    rm -r mongosh-2.3.9-linux-x64 && \
+    wget https://github.com/open5gs/open5gs/archive/v${OPEN5GS_VERSION}.tar.gz && \
+    tar -zxf v${OPEN5GS_VERSION}.tar.gz && \
+    mv open5gs-${OPEN5GS_VERSION} open5gs && \
+    cd /open5gs/webui && \
+    npm install && \
+    npm run build
+
+WORKDIR /open5gs/webui
+
+EXPOSE 3000
